@@ -21,10 +21,10 @@ git clone https://github.com/Canther3/3D-FPS-game-three.js.git
 # Projeye girin
 cd 3D-FPS-game-three.js
 
-# Bağımlılıkları yükleyin
+# Modüleri yükleyin
 npm install
 
-# Geliştirme sunucusunu başlatın
+# Sunucuyu başlatın
 npm run dev
 
 # Üretim sürümünü oluşturun
