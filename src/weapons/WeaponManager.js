@@ -2,14 +2,14 @@ import * as THREE from 'three';
 import { Vector3, Quaternion, Raycaster } from 'three';
 import { Weapon } from './Weapon.js';
 
-// Constants
+// Sabitler
 const WEAPONS = {
     pistol: {
         name: 'Pistol',
         modelPath: 'models/weapons/pistol.glb',
         damage: 25,
-        fireRate: 5, // rounds per second
-        reloadTime: 1.0, // seconds
+        fireRate: 5, // saniyedeki mermi sayısı
+        reloadTime: 1.0, // saniye
         magazineSize: 12,
         totalAmmo: 48,
         automatic: false,
@@ -32,8 +32,8 @@ const WEAPONS = {
         name: 'Assault Rifle',
         modelPath: 'models/weapons/rifle.glb',
         damage: 20,
-        fireRate: 10, // rounds per second
-        reloadTime: 2.0, // seconds
+        fireRate: 10, // saniyedeki mermi sayısı
+        reloadTime: 2.0, // saniye
         magazineSize: 30,
         totalAmmo: 90,
         automatic: true,
@@ -55,14 +55,14 @@ const WEAPONS = {
     shotgun: {
         name: 'Shotgun',
         modelPath: 'models/weapons/shotgun.glb',
-        damage: 15, // per pellet
-        fireRate: 1.2, // rounds per second
-        reloadTime: 2.5, // seconds
+        damage: 15, // saçma başına
+        fireRate: 1.2, // saniyedeki atış sayısı
+        reloadTime: 2.5, // saniye
         magazineSize: 8,
         totalAmmo: 24,
         automatic: false,
         spread: 0.08,
-        pellets: 8, // number of pellets per shot
+        pellets: 8, // her atıştaki saçma sayısı
         recoil: 1.0,
         aimRecoil: 0.6,
         soundEffects: {
@@ -87,39 +87,39 @@ export class WeaponManager {
         this.player = player;
         this.soundManager = soundManager;
         
-        // Weapon properties
+        // Silah özellikleri
         this.weapons = [];
         this.currentWeaponIndex = -1;
         this.currentWeapon = null;
         
-        // Firing state
+        // Ateşleme durumu
         this.isFiring = false;
         this.isAiming = false;
         this.lastFireTime = 0;
         this.isPaused = false;
         
-        // Raycaster for hit detection
+        // İsabet tespiti için ışın izleyici
         this.raycaster = new Raycaster();
-        // Set camera for raycaster to handle sprites properly
+        // Sprite'ları düzgün işlemek için ışın izleyiciye kamera ata
         this.raycaster.camera = this.camera;
         
-        // Container for weapon models
+        // Silah modelleri için konteyner
         this.weaponContainer = new THREE.Group();
         this.scene.add(this.weaponContainer);
         
-        // Bind methods
+        // Metotları bağla
         this.update = this.update.bind(this);
         this.startFiring = this.startFiring.bind(this);
         this.stopFiring = this.stopFiring.bind(this);
         this.fire = this.fire.bind(this);
         this.reload = this.reload.bind(this);
         
-        // Initialize weapons
+        // Silahları başlat
         this.initializeWeapons();
     }
     
     initializeWeapons() {
-        // Create all weapons
+        // Tüm silahları oluştur
         Object.keys(WEAPONS).forEach(weaponType => {
             const weaponConfig = WEAPONS[weaponType];
             const weapon = new Weapon(weaponType, weaponConfig);
@@ -128,11 +128,11 @@ export class WeaponManager {
     }
     
     equipWeapon(weaponType) {
-        // Find weapon by type
+        // Türüne göre silahı bul
         const weaponIndex = this.weapons.findIndex(w => w.type === weaponType);
         
         if (weaponIndex === -1) {
-            console.error(`Weapon type not found: ${weaponType}`);
+            console.error(`Silah türü bulunamadı: ${weaponType}`);
             return;
         }
         
@@ -140,41 +140,41 @@ export class WeaponManager {
     }
     
     switchWeapon(index) {
-        // Validate index
+        // İndeksi doğrula
         if (index < 0 || index >= this.weapons.length) {
             return;
         }
         
-        // Skip if same weapon
+        // Aynı silahsa atla
         if (index === this.currentWeaponIndex) {
             return;
         }
         
-        // Hide current weapon
+        // Mevcut silahı gizle
         if (this.currentWeapon) {
             this.currentWeapon.hide();
             this.weaponContainer.remove(this.currentWeapon.model);
         }
         
-        // Set new weapon
+        // Yeni silahı ayarla
         this.currentWeaponIndex = index;
         this.currentWeapon = this.weapons[index];
         
-        // Show new weapon
+        // Yeni silahı göster
         this.weaponContainer.add(this.currentWeapon.model);
         this.currentWeapon.show();
         
-        // Play weapon switch sound
+        // Silah değiştirme sesini çal
         this.soundManager.playSound('reload', 0.5);
         
-        // Update ammo display
+        // Mermi göstergesini güncelle
         this.updateAmmoDisplay();
     }
     
     cycleWeapon(direction) {
         let newIndex = this.currentWeaponIndex + direction;
         
-        // Wrap around
+        // Sınırları aştığında başa/sona dön
         if (newIndex < 0) {
             newIndex = this.weapons.length - 1;
         } else if (newIndex >= this.weapons.length) {
@@ -187,16 +187,16 @@ export class WeaponManager {
     startFiring() {
         if (!this.currentWeapon || this.player.isDead) return;
         
-        console.log(`Starting firing with ${this.currentWeapon.type}`, this.currentWeapon.config.automatic ? "(automatic)" : "(manual)");
+        console.log(`${this.currentWeapon.type} ile ateşleme başlatılıyor`, this.currentWeapon.config.automatic ? "(otomatik)" : "(manuel)");
         this.isFiring = true;
         
-        // Fire immediately for all weapons (automatic or not)
+        // Tüm silahlar için hemen ateş et (otomatik olsun olmasın)
         // Bu, tüm silahların ilk atışı anında yapmasını sağlar
         this.fire();
     }
     
     stopFiring() {
-        console.log("Stopping firing - isFiring was: " + this.isFiring);
+        console.log("Ateşleme durduruluyor - isFiring değeri: " + this.isFiring);
         const wasFiring = this.isFiring;
         this.isFiring = false;
         
@@ -207,7 +207,7 @@ export class WeaponManager {
             // Son ateş etme zamanını sıfırla
             this.lastFireTime = 0;
             
-            console.log("Auto weapon firing cleared");
+            console.log("Otomatik silah ateşlemesi temizlendi");
         }
     }
     

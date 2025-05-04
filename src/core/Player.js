@@ -4,7 +4,7 @@ import * as CANNON from 'cannon-es';
 
 export class Player {
     constructor(camera, physics, soundManager, game = null) {
-        // Player properties
+        // Oyuncu özellikleri
         this.camera = camera;
         this.physics = physics;
         this.soundManager = soundManager;
@@ -14,7 +14,7 @@ export class Player {
         this.maxHealth = 100;
         this.isDead = false;
         
-        // Movement settings - increased speeds
+        // Hareket ayarları - artırılmış hızlar
         this.moveSpeed = 12;
         this.runSpeed = 20;
         this.jumpForce = 8;
@@ -22,26 +22,26 @@ export class Player {
         this.isJumping = false;
         this.canJump = true;
         this.footstepTimer = 0;
-        this.footstepInterval = 0.4; // Time between footsteps in seconds
+        this.footstepInterval = 0.4; // Adım sesleri arasındaki süre (saniye cinsinden)
         
-        // Looking settings
+        // Bakış ayarları
         this.lookSensitivity = 0.15;
-        this.maxLookUp = Math.PI / 2 - 0.1; // Just below 90 degrees
-        this.maxLookDown = -Math.PI / 2 + 0.1; // Just above -90 degrees
+        this.maxLookUp = Math.PI / 2 - 0.1; // 90 derecenin hemen altında
+        this.maxLookDown = -Math.PI / 2 + 0.1; // -90 derecenin hemen üstünde
         
-        // Movement vectors
+        // Hareket vektörleri
         this.moveDirection = new Vector3();
         this.velocity = new Vector3();
         
-        // Camera setup - adjusted starting position
+        // Kamera kurulumu - ayarlanmış başlangıç pozisyonu
         this.camera.position.set(0, 1.8, 10);
         this.cameraRotation = new Euler(0, 0, 0, 'YXZ');
         
-        // Physics body
+        // Fizik gövdesi
         this.radius = 0.4;
         this.height = 1.8;
         
-        // Create physics body (capsule shape)
+        // Fizik gövdesini oluştur (silindir şekli)
         const shape = new CANNON.Cylinder(
             this.radius, 
             this.radius, 
@@ -54,14 +54,14 @@ export class Player {
             position: new CANNON.Vec3(0, this.height / 2 + 1, 10),
             shape: shape,
             material: physics.playerMaterial,
-            fixedRotation: true, // Prevent player from tipping over
+            fixedRotation: true, // Oyuncunun devrilmesini engelle
             linearDamping: 0.02
         });
         
-        // Add player body to physics world
+        // Oyuncu gövdesini fizik dünyasına ekle
         this.physics.world.addBody(this.body);
         
-        // Set up raycast for ground check
+        // Zemin kontrolü için ışın izleme ayarla
         this.raycaster = new Raycaster(
             new Vector3(), 
             new Vector3(0, -1, 0), 
@@ -69,7 +69,7 @@ export class Player {
             this.height / 2 + 0.1
         );
         
-        // Movement state
+        // Hareket durumu
         this.movementKeys = {
             forward: false,
             backward: false,
@@ -80,7 +80,7 @@ export class Player {
             crouch: false
         };
         
-        // Weapon state
+        // Silah durumu
         this.currentWeapon = null;
         this.inventory = [];
     }
@@ -88,27 +88,27 @@ export class Player {
     update(deltaTime) {
         if (this.isDead) return;
         
-        // Update player movement
+        // Oyuncu hareketini güncelle
         this.updateMovement(deltaTime);
         
-        // Update camera position
+        // Kamera pozisyonunu güncelle
         this.updateCamera();
         
-        // Play footstep sounds
+        // Adım seslerini çal
         this.updateFootsteps(deltaTime);
         
-        // Update UI
+        // Arayüzü güncelle
         this.updateUI();
         
-        // Check for pickups
+        // Toplanabilir öğeleri kontrol et
         this.checkPickups();
     }
     
     updateMovement(deltaTime) {
-        // Reset movement direction
+        // Hareket yönünü sıfırla
         this.moveDirection.set(0, 0, 0);
         
-        // Calculate movement direction based on keys
+        // Basılan tuşlara göre hareket yönünü hesapla
         if (this.movementKeys.forward) {
             this.moveDirection.z -= 1;
         }
@@ -122,63 +122,63 @@ export class Player {
             this.moveDirection.x += 1;
         }
         
-        // Normalize movement direction if moving diagonally
+        // Çapraz hareket ediyorsa hareket yönünü normalleştir
         if (this.moveDirection.length() > 1) {
             this.moveDirection.normalize();
         }
         
-        // Apply camera rotation to movement
+        // Kamera döndürmesini harekete uygula
         const rotationMatrix = new THREE.Matrix4();
         rotationMatrix.makeRotationY(this.cameraRotation.y);
         this.moveDirection.applyMatrix4(rotationMatrix);
         
-        // Set current speed based on run state
+        // Koşu durumuna göre mevcut hızı ayarla
         const currentSpeed = this.movementKeys.run ? this.runSpeed : this.moveSpeed;
         
-        // Apply movement to velocity - with direct control
+        // Hareketi hıza uygula - doğrudan kontrol ile
         if (this.moveDirection.length() > 0) {
-            // Use target velocity for smoother acceleration
+            // Daha yumuşak hızlanma için hedef hızı kullan
             const targetVelocityX = this.moveDirection.x * currentSpeed;
             const targetVelocityZ = this.moveDirection.z * currentSpeed;
             
-            // Acceleration factörü - hareketi daha hızlı yanıt vermesi için artırıldı
+            // Hızlanma faktörü - hareketi daha çabuk yanıt verir hale getirmek için artırıldı
             const accelFactor = 0.3; // 0.2'den 0.3'e çıkartıldı
             
-            // Interpolate current velocity toward target velocity (acceleration)
+            // Mevcut hızı hedef hıza doğru yumuşak şekilde değiştir (hızlanma)
             this.body.velocity.x = THREE.MathUtils.lerp(this.body.velocity.x, targetVelocityX, accelFactor);
             this.body.velocity.z = THREE.MathUtils.lerp(this.body.velocity.z, targetVelocityZ, accelFactor);
         } else {
-            // Apply a much smaller damping manually when not pressing movement keys
+            // Hareket tuşlarına basılmadığında daha küçük bir sönümleme uygula
             const dampingFactor = 0.9; // 0.95'den 0.9'a düşürüldü - daha hızlı durmak için
             this.body.velocity.x *= dampingFactor;
             this.body.velocity.z *= dampingFactor;
             
-            // Stop completely if very slow to prevent drifting
+            // Çok yavaşsa tamamen durdur (sürüklenmeyi engelle)
             const stopThreshold = 0.1; // 0.05'den 0.1'e artırıldı
             if (Math.abs(this.body.velocity.x) < stopThreshold) this.body.velocity.x = 0;
             if (Math.abs(this.body.velocity.z) < stopThreshold) this.body.velocity.z = 0;
         }
         
-        // Belirli aralıklarla hız bilgilerini logla
-        if (this.moveDirection.length() > 0 && Math.random() < 0.01) { // Her 100 framede bir
-            console.log(`Movement: keys=${JSON.stringify(this.movementKeys)}, vel=${this.body.velocity.x.toFixed(2)},${this.body.velocity.z.toFixed(2)}`);
+        // Belirli aralıklarla hız bilgilerini konsola yaz
+        if (this.moveDirection.length() > 0 && Math.random() < 0.01) { // Her 100 karede bir
+            console.log(`Hareket: tuşlar=${JSON.stringify(this.movementKeys)}, hız=${this.body.velocity.x.toFixed(2)},${this.body.velocity.z.toFixed(2)}`);
         }
         
-        // Check if player is on ground
+        // Oyuncunun zeminde olup olmadığını kontrol et
         this.checkGrounded();
         
-        // Handle jumping
+        // Zıplamayı işle
         if (this.movementKeys.jump && this.canJump && !this.isJumping) {
             this.jump();
         }
     }
     
     checkGrounded() {
-        // Update raycaster position
+        // Işın izleyici pozisyonunu güncelle
         this.raycaster.ray.origin.copy(this.camera.position);
-        this.raycaster.ray.origin.y -= 1.5; // Offset to check from feet
+        this.raycaster.ray.origin.y -= 1.5; // Ayaklardan kontrol için ofset
         
-        // Get collisions from physics world
+        // Fizik dünyasından çarpışmaları al
         const result = this.physics.raycastFirst(
             new CANNON.Vec3(this.raycaster.ray.origin.x, this.raycaster.ray.origin.y, this.raycaster.ray.origin.z),
             new CANNON.Vec3(0, -1, 0),
@@ -194,7 +194,7 @@ export class Player {
     }
     
     jump() {
-        // Apply upward force
+        // Yukarı doğru kuvvet uygula
         this.body.velocity.y = this.jumpForce;
         this.isJumping = true;
         this.canJump = false;

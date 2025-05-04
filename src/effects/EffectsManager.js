@@ -8,27 +8,27 @@ export class EffectsManager {
         this.assetLoader = assetLoader;
         this.effects = [];
         
-        // Particle systems
+        // Parçacık sistemleri
         this.particleSystems = [];
         
-        // Preload common geometries
+        // Sık kullanılan geometrileri önceden yükle
         this.geometries = {
             particle: new THREE.SphereGeometry(0.05, 8, 8),
             spark: new THREE.BoxGeometry(0.08, 0.08, 0.08)
         };
         
-        // Create reusable geometries
+        // Yeniden kullanılabilir geometriler oluştur
         this.particleGeometry = new THREE.PlaneGeometry(1, 1);
         
-        // Arrays to track active effects
+        // Aktif efektleri izlemek için diziler
         this.bulletHoles = [];
         this.decals = [];
         
-        // Maximum number of effects to keep in the scene
+        // Sahnede tutulacak maksimum efekt sayısı
         this.maxBulletHoles = 50;
         this.maxDecals = 100;
         
-        // Initialize materials first with fallbacks
+        // Önce yedek materyallerle başlat
         this.materials = {
             muzzleFlash: new THREE.MeshBasicMaterial({ color: 0xffaa00, transparent: true, opacity: 0.8 }),
             bulletImpact: new THREE.MeshBasicMaterial({ color: 0xaaaaaa, transparent: true, opacity: 0.6 }),
@@ -39,18 +39,18 @@ export class EffectsManager {
             dust: new THREE.MeshBasicMaterial({ color: 0xbbbbbb, transparent: true, opacity: 0.4 })
         };
         
-        // Load textures to enhance materials if available
+        // Eğer varsa, materyalleri dokularla geliştir
         this.enhanceMaterialsWithTextures();
         
-        console.log("EffectsManager initialized");
+        console.log("EffectsManager başlatıldı");
     }
     
     enhanceMaterialsWithTextures() {
-        // Get textures from asset loader and enhance materials
+        // Varlık yükleyiciden dokuları al ve materyalleri geliştir
         try {
-            console.log("Enhancing materials with textures");
+            console.log("Materyaller dokularla geliştiriliyor");
             
-            // Fire texture (for muzzle flash and explosion)
+            // Ateş dokusu (namlu parlaması ve patlama için)
             const fire = this.assetLoader.getTexture('fire');
             if (fire) {
                 this.materials.muzzleFlash = new THREE.MeshBasicMaterial({
@@ -72,7 +72,7 @@ export class EffectsManager {
                 });
             }
             
-            // Smoke texture
+            // Duman dokusu
             const smoke = this.assetLoader.getTexture('smoke');
             if (smoke) {
                 this.materials.smoke = new THREE.MeshBasicMaterial({
@@ -84,7 +84,7 @@ export class EffectsManager {
                 });
             }
             
-            // Spark texture
+            // Kıvılcım dokusu
             const spark = this.assetLoader.getTexture('spark');
             if (spark) {
                 this.materials.spark = new THREE.MeshBasicMaterial({
@@ -97,7 +97,7 @@ export class EffectsManager {
                 });
             }
             
-            // Blood texture
+            // Kan dokusu
             const blood = this.assetLoader.getTexture('blood');
             if (blood) {
                 this.materials.blood = new THREE.MeshBasicMaterial({
@@ -109,7 +109,7 @@ export class EffectsManager {
                 });
             }
             
-            // Dust texture
+            // Toz dokusu
             const dust = this.assetLoader.getTexture('dust');
             if (dust) {
                 this.materials.dust = new THREE.MeshBasicMaterial({
@@ -121,7 +121,7 @@ export class EffectsManager {
                 });
             }
             
-            // Bullet hole texture
+            // Mermi deliği dokusu
             const bulletHole = this.assetLoader.getTexture('bulletHole');
             if (bulletHole) {
                 this.materials.bulletImpact = new THREE.MeshBasicMaterial({
@@ -133,27 +133,27 @@ export class EffectsManager {
                 });
             }
             
-            console.log("EffectsManager: textures applied to materials");
+            console.log("EffectsManager: dokular materyallere uygulandı");
         } catch (error) {
-            console.error("Error enhancing materials with textures:", error);
-            console.log("Using fallback materials");
+            console.error("Materyalleri dokularla geliştirirken hata:", error);
+            console.log("Yedek materyaller kullanılıyor");
         }
     }
     
     createMuzzleFlash(position, direction) {
-        // Create a simple muzzle flash effect
+        // Basit bir namlu parlaması efekti oluştur
         const flash = new THREE.PointLight(0xffaa00, 2, 2);
         flash.position.copy(position);
         
-        // Add to scene
+        // Sahneye ekle
         this.scene.add(flash);
         
-        // Auto-remove after short duration
+        // Kısa süre sonra otomatik olarak kaldır
         setTimeout(() => {
             this.scene.remove(flash);
         }, 50);
         
-        // Create particles for the muzzle flash
+        // Namlu parlaması için parçacıklar oluştur
         this.createParticles(position, {
             count: 5,
             material: this.materials.muzzleFlash,
@@ -166,7 +166,7 @@ export class EffectsManager {
     }
     
     createBulletImpact(position, normal) {
-        // Create spark particles for bullet impact
+        // Mermi etkisi için kıvılcım parçacıkları oluştur
         this.createParticles(position, {
             count: 8,
             material: this.materials.spark,
@@ -177,7 +177,7 @@ export class EffectsManager {
             size: 0.05
         });
         
-        // Create dust particles
+        // Toz parçacıkları oluştur
         if (this.materials.dust) {
             this.createParticles(position, {
                 count: 3,
@@ -190,31 +190,31 @@ export class EffectsManager {
             });
         }
         
-        // Create bullet hole decal
+        // Mermi deliği çıkartması oluştur
         this.createBulletHole(position, normal);
     }
     
     createBulletHole(position, normal) {
-        // Use an oriented plane instead of sprite to avoid raycaster issues
+        // Işın izleyici sorunlarını önlemek için sprite yerine yönlendirilmiş düzlem kullan
         if (this.materials.bulletImpact) {
-            // Create a plane for the decal
+            // Çıkartma için bir düzlem oluştur
             const decalGeometry = new THREE.PlaneGeometry(0.2, 0.2);
             const bulletHole = new THREE.Mesh(decalGeometry, this.materials.bulletImpact);
             
-            // Orient the plane to face along the normal
+            // Düzlemi normal yönüne yönlendir
             bulletHole.lookAt(position.clone().add(normal));
             
-            // Position slightly above surface to prevent z-fighting
+            // Yüzeye yakın konumda tutmak için biraz öteleme
             const offsetPosition = position.clone().addScaledVector(normal, 0.01);
             bulletHole.position.copy(offsetPosition);
             
-            // Add to scene
+            // Sahneye ekle
             this.scene.add(bulletHole);
             
-            // Add to bullet holes array for cleanup
+            // Aktif mermi delikleri dizisine ekle
             this.bulletHoles.push(bulletHole);
             
-            // Remove oldest bullet hole if we exceed max
+            // Eğer maksimum sayıyı aşarsak en eskiyi kaldır
             if (this.bulletHoles.length > this.maxBulletHoles) {
                 const oldest = this.bulletHoles.shift();
                 this.scene.remove(oldest);
@@ -225,7 +225,7 @@ export class EffectsManager {
     }
     
     createBloodSplatter(position, direction) {
-        // Create blood particles
+        // Kan parçacıkları oluştur
         this.createParticles(position, {
             count: 12,
             material: this.materials.blood,
@@ -239,14 +239,14 @@ export class EffectsManager {
     }
     
     createExplosion(position, size = 1.0) {
-        // Create explosion light
+        // Patlama ışığı oluştur
         const light = new THREE.PointLight(0xff5500, 5, 10 * size);
         light.position.copy(position);
         this.scene.add(light);
         
-        // Fade out and remove light
+        // Işığı azaltıp kaldır
         const startTime = Date.now();
-        const duration = 1000; // 1 second
+        const duration = 1000; // 1 saniye
         
         const fadeLight = () => {
             const elapsed = Date.now() - startTime;
@@ -261,7 +261,7 @@ export class EffectsManager {
         
         fadeLight();
         
-        // Create explosion particles
+        // Patlama parçacıkları oluştur
         this.createParticles(position, {
             count: 30 * size,
             material: this.materials.explosion,
@@ -273,7 +273,7 @@ export class EffectsManager {
             gravity: -0.5
         });
         
-        // Create smoke particles
+        // Duman parçacıkları oluştur
         if (this.materials.smoke) {
             this.createParticles(position, {
                 count: 15 * size,
@@ -315,95 +315,95 @@ export class EffectsManager {
             gravity = 0
         } = options;
         
-        // Create a group for particles
+        // Bir parçacık sistemi oluştur
         const particleSystem = {
             particles: [],
             startTime: Date.now(),
-            lifetime: lifetime * 1000, // Convert to milliseconds
+            lifetime: lifetime * 1000, // Milisaniye cinsinden
             gravity: gravity
         };
         
-        // Create particles
+        // Parçacıklar oluştur
         for (let i = 0; i < count; i++) {
             const particle = new THREE.Mesh(geometry, material.clone());
             
-            // Set initial position
+            // Başlangıç konumu ayarla
             particle.position.copy(position);
             
-            // Add some randomness to velocity
+            // Hızınıza biraz rastgelelik ekleyin
             const randomVel = new THREE.Vector3(
                 (Math.random() - 0.5) * 2 * velocityRandomness,
                 (Math.random() - 0.5) * 2 * velocityRandomness,
                 (Math.random() - 0.5) * 2 * velocityRandomness
             );
             
-            // Calculate particle velocity
+            // Parçacık hızını hesapla
             particle.userData.velocity = velocity.clone().add(randomVel);
             
-            // Set size
+            // Boyutu ayarla
             particle.scale.set(size, size, size);
             
-            // Add to scene
+            // Sahneye ekle
             this.scene.add(particle);
             
-            // Store in system
+            // Sisteme ekle
             particleSystem.particles.push(particle);
         }
         
-        // Add to active particle systems
+        // Aktif parçacık sistemlerine ekle
         this.particleSystems.push(particleSystem);
     }
     
     update(deltaTime) {
-        // Update all particle systems
+        // Tüm parçacık sistemlerini güncelle
         for (let i = this.particleSystems.length - 1; i >= 0; i--) {
             const system = this.particleSystems[i];
             const elapsed = Date.now() - system.startTime;
             const life = Math.min(elapsed / system.lifetime, 1);
             
-            // Check if system should be removed
+            // Sistemin kaldırılıp kaldırılmayacağını kontrol et
             if (life >= 1) {
-                // Remove all particles
+                // Tüm parçacıkları kaldır
                 system.particles.forEach(particle => {
                     this.scene.remove(particle);
                     if (particle.geometry) particle.geometry.dispose();
                     if (particle.material) particle.material.dispose();
                 });
                 
-                // Remove system
+                // Sistemi kaldır
                 this.particleSystems.splice(i, 1);
                 continue;
             }
             
-            // Update particles
+            // Parçacıkları güncelle
             system.particles.forEach(particle => {
-                // Move particle
+                // Parçacıkı hareket ettir
                 particle.position.add(
                     particle.userData.velocity.clone().multiplyScalar(deltaTime)
                 );
                 
-                // Apply gravity effect
+                // Yerçekimi etkisini uygula
                 if (system.gravity !== 0) {
                     particle.userData.velocity.y -= system.gravity * deltaTime;
                 }
                 
-                // Fade out
+                // Işını azalt
                 if (particle.material.opacity !== undefined) {
                     particle.material.opacity = 1 - life;
                 }
                 
-                // Shrink
+                // Boyutu azalt
                 const scale = 1 - life * 0.5;
                 particle.scale.set(scale, scale, scale);
             });
         }
         
-        // Update other effects
+        // Diğer efektleri güncelle
         for (let i = this.effects.length - 1; i >= 0; i--) {
             const effect = this.effects[i];
             effect.age += deltaTime;
             
-            // Check if effect should be removed
+            // Efektin kaldırılıp kaldırılmayacağını kontrol et
             if (effect.age >= effect.lifetime) {
                 this.scene.remove(effect.object);
                 if (effect.object.material) effect.object.material.dispose();
@@ -414,13 +414,13 @@ export class EffectsManager {
     }
     
     createDefaultImpact(position, normal) {
-        // Skip if texture not loaded
+        // Eğer doküman yüklenmediyse atla
         if (!this.materials.dust) return;
         
-        // Get direction from normal
+        // Normaldan yön al
         const direction = normal.clone();
         
-        // Create dust particles
+        // Toz parçacıkları oluştur
         const system = new ParticleSystem({
             position: position,
             direction: direction,
@@ -434,7 +434,7 @@ export class EffectsManager {
             scale: { start: 0.5, end: 2.0 },
             blending: THREE.NormalBlending,
             spread: 0.7,
-            emitRate: 0, // Emit all at once
+            emitRate: 0, // Hepsini birden yayınla
             burst: true,
             gravity: 2
         });
@@ -446,13 +446,13 @@ export class EffectsManager {
     }
     
     createMetalImpact(position, normal) {
-        // Skip if texture not loaded
+        // Eğer doküman yüklenmediyse atla
         if (!this.materials.spark) return;
         
-        // Get direction from normal
+        // Normaldan yön al
         const direction = normal.clone();
         
-        // Create spark particles
+        // Kıvılcım parçacıkları oluştur
         const system = new ParticleSystem({
             position: position,
             direction: direction,
@@ -466,7 +466,7 @@ export class EffectsManager {
             scale: { start: 1, end: 0.1 },
             blending: THREE.AdditiveBlending,
             spread: 0.8,
-            emitRate: 0, // Emit all at once
+            emitRate: 0, // Hepsini birden yayınla
             burst: true,
             gravity: 5
         });
@@ -478,13 +478,13 @@ export class EffectsManager {
     }
     
     createWoodImpact(position, normal) {
-        // Skip if texture not loaded
+        // Eğer doküman yüklenmediyse atla
         if (!this.materials.dust) return;
         
-        // Get direction from normal
+        // Normaldan yön al
         const direction = normal.clone();
         
-        // Create wood chip particles
+        // Odun kırıntıları parçacıkları oluştur
         const system = new ParticleSystem({
             position: position,
             direction: direction,
@@ -493,12 +493,12 @@ export class EffectsManager {
             particleSize: { min: 0.02, max: 0.06 },
             lifetime: { min: 0.3, max: 1.2 },
             velocity: { min: 0.8, max: 3.0 },
-            color: new THREE.Color(0x8b4513), // Brown color
+            color: new THREE.Color(0x8b4513), // Koyu renk
             opacity: { start: 0.8, end: 0 },
             scale: { start: 0.5, end: 1.5 },
             blending: THREE.NormalBlending,
             spread: 0.6,
-            emitRate: 0, // Emit all at once
+            emitRate: 0, // Hepsini birden yayınla
             burst: true,
             gravity: 4
         });
@@ -510,13 +510,13 @@ export class EffectsManager {
     }
     
     createConcreteImpact(position, normal) {
-        // Skip if texture not loaded
+        // Eğer doküman yüklenmediyse atla
         if (!this.materials.dust) return;
         
-        // Get direction from normal
+        // Normaldan yön al
         const direction = normal.clone();
         
-        // Create concrete dust particles
+        // Beton toz parçacıkları oluştur
         const system = new ParticleSystem({
             position: position,
             direction: direction,
@@ -525,12 +525,12 @@ export class EffectsManager {
             particleSize: { min: 0.02, max: 0.1 },
             lifetime: { min: 0.5, max: 1.5 },
             velocity: { min: 0.5, max: 2.5 },
-            color: new THREE.Color(0xaaaaaa), // Gray color
+            color: new THREE.Color(0xaaaaaa), // Gri renk
             opacity: { start: 0.9, end: 0 },
             scale: { start: 0.5, end: 2.0 },
             blending: THREE.NormalBlending,
             spread: 0.5,
-            emitRate: 0, // Emit all at once
+            emitRate: 0, // Hepsini birden yayınla
             burst: true,
             gravity: 3
         });
@@ -542,13 +542,13 @@ export class EffectsManager {
     }
     
     createBloodEffect(position, normal) {
-        // Skip if texture not loaded
+        // Eğer doküman yüklenmediyse atla
         if (!this.materials.blood) return;
         
-        // Get direction from normal
+        // Normaldan yön al
         const direction = normal.clone();
         
-        // Create blood particles
+        // Kan parçacıkları oluştur
         const system = new ParticleSystem({
             position: position,
             direction: direction,
@@ -557,12 +557,12 @@ export class EffectsManager {
             particleSize: { min: 0.03, max: 0.12 },
             lifetime: { min: 0.3, max: 1.0 },
             velocity: { min: 0.5, max: 2.0 },
-            color: new THREE.Color(0x8a0303), // Dark red
+            color: new THREE.Color(0x8a0303), // Koyu kırmızı
             opacity: { start: 0.9, end: 0 },
             scale: { start: 0.5, end: 1.5 },
             blending: THREE.NormalBlending,
             spread: 0.7,
-            emitRate: 0, // Emit all at once
+            emitRate: 0, // Hepsini birden yayınla
             burst: true,
             gravity: 3
         });
@@ -570,14 +570,14 @@ export class EffectsManager {
         this.scene.add(system.container);
         this.particleSystems.push(system);
         
-        // Create blood splatter on surface
+        // Yüzeye kan dök
         this.createBloodSplatter(position, normal);
         
         return system;
     }
     
     clearAll() {
-        // Remove all particle systems
+        // Tüm parçacık sistemlerini kaldır
         this.particleSystems.forEach(system => {
             system.particles.forEach(particle => {
                 this.scene.remove(particle);
@@ -587,7 +587,7 @@ export class EffectsManager {
         });
         this.particleSystems = [];
         
-        // Remove all effects
+        // Tüm efektleri kaldır
         this.effects.forEach(effect => {
             this.scene.remove(effect.object);
             if (effect.object.material) effect.object.material.dispose();

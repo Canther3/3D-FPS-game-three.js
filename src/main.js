@@ -6,7 +6,7 @@ import { SoundManager } from './audio/SoundManager.js';
 import { AssetLoader } from './utils/AssetLoader.js';
 import { UIManager } from './ui/UIManager.js';
 
-// Global variables
+// Global değişkenler
 let game;
 let assetLoader;
 let soundManager;
@@ -15,7 +15,7 @@ let controls;
 let isPointerLocked = false;
 let uiManager;
 
-// Initialize the loading manager
+// Yükleme yöneticisini başlat
 loadingManager = new THREE.LoadingManager();
 loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
     const progress = (itemsLoaded / itemsTotal) * 100;
@@ -23,27 +23,27 @@ loadingManager.onProgress = (url, itemsLoaded, itemsTotal) => {
     if (loadingBar) {
         loadingBar.style.width = progress + '%';
     }
-    console.log(`Loading progress: ${Math.round(progress)}%`);
+    console.log(`Yükleme ilerlemesi: ${Math.round(progress)}%`);
 };
 
 loadingManager.onLoad = () => {
-    // Hide loading screen
+    // Yükleme ekranını gizle
     const loadingScreen = document.getElementById('loading-screen');
     if (loadingScreen) {
         loadingScreen.style.display = 'none';
     }
     
-    // Show click to start overlay
+    // Başlamak için tıkla ekranını göster
     showStartOverlay();
 };
 
 loadingManager.onError = (url) => {
-    console.warn(`Failed to load asset: ${url} - This is non-fatal, the game will use fallbacks.`);
+    console.warn(`Varlık yüklenemedi: ${url} - Bu kritik değil, oyun yedek varlıkları kullanacak.`);
 };
 
-// Show a start overlay to allow user to click for pointer lock
+// Fare kilidini etkinleştirmek için kullanıcının tıklamasını bekleyen bir ekran göster
 function showStartOverlay() {
-    // First remove any existing overlay
+    // Önce varolan ekranı kaldır
     const existingOverlay = document.getElementById('start-overlay');
     if (existingOverlay) {
         document.body.removeChild(existingOverlay);
@@ -60,7 +60,7 @@ function showStartOverlay() {
     overlay.style.flexDirection = 'column';
     overlay.style.justifyContent = 'center';
     overlay.style.alignItems = 'center';
-    overlay.style.zIndex = '10000'; // Super high z-index to ensure it's on top
+    overlay.style.zIndex = '10000'; // Üstte olması için çok yüksek z-index
     overlay.style.textAlign = 'center';
     overlay.style.cursor = 'pointer';
     overlay.style.fontFamily = 'Arial, sans-serif';
@@ -73,21 +73,21 @@ function showStartOverlay() {
     
     document.body.appendChild(overlay);
     
-    // Click to start game
+    // Oyunu başlatmak için tıkla
     overlay.addEventListener('click', () => {
-        // Start game and lock pointer
+        // Oyunu başlat ve fare kilidini etkinleştir
         startGame();
         requestPointerLock();
-        // Remove overlay after click - make sure it's really removed
+        // Tıklamadan sonra ekranı kaldır - gerçekten kaldırıldığından emin ol
         if (overlay.parentNode) {
             document.body.removeChild(overlay);
         }
     });
 }
 
-// Show a paused overlay when the game is paused
+// Oyun duraklatıldığında duraklama ekranını göster
 function showPausedOverlay() {
-    // First remove any existing overlay
+    // Önce varolan ekranı kaldır
     const existingOverlay = document.getElementById('pause-overlay');
     if (existingOverlay) {
         document.body.removeChild(existingOverlay);
@@ -104,7 +104,7 @@ function showPausedOverlay() {
     pauseOverlay.style.flexDirection = 'column';
     pauseOverlay.style.justifyContent = 'center';
     pauseOverlay.style.alignItems = 'center';
-    pauseOverlay.style.zIndex = '10000'; // Super high z-index to ensure it's on top
+    pauseOverlay.style.zIndex = '10000'; // Üstte olması için çok yüksek z-index
     pauseOverlay.style.cursor = 'pointer';
     pauseOverlay.style.fontFamily = 'Arial, sans-serif';
     
@@ -115,7 +115,7 @@ function showPausedOverlay() {
     
     document.body.appendChild(pauseOverlay);
     
-    // Click to resume
+    // Devam etmek için tıkla
     pauseOverlay.addEventListener('click', () => {
         requestPointerLock();
         if (pauseOverlay.parentNode) {
@@ -127,7 +127,7 @@ function showPausedOverlay() {
     });
 }
 
-// Request pointer lock
+// Fare kilidi iste
 function requestPointerLock() {
     const canvas = document.querySelector('canvas');
     if (canvas) {
@@ -138,19 +138,19 @@ function requestPointerLock() {
     }
 }
 
-// Setup pointer lock event listeners
+// Fare kilidi olay dinleyicilerini ayarla
 function setupPointerLock() {
-    // Pointer lock change event
+    // Fare kilidi değişim olayı
     document.addEventListener('pointerlockchange', pointerLockChange, false);
     document.addEventListener('mozpointerlockchange', pointerLockChange, false);
     document.addEventListener('webkitpointerlockchange', pointerLockChange, false);
     
-    // Pointer lock error event
+    // Fare kilidi hata olayı
     document.addEventListener('pointerlockerror', pointerLockError, false);
     document.addEventListener('mozpointerlockerror', pointerLockError, false);
     document.addEventListener('webkitpointerlockerror', pointerLockError, false);
     
-    // Initial click for pointer lock
+    // Fare kilidi için ilk tıklama
     document.addEventListener('click', function(event) {
         if (!isPointerLocked) {
             const canvas = document.querySelector('canvas');
@@ -161,69 +161,69 @@ function setupPointerLock() {
     });
 }
 
-// Handle pointer lock change
+// Fare kilidi değişimini işle
 function pointerLockChange() {
     const canvas = document.querySelector('canvas');
     if (document.pointerLockElement === canvas ||
         document.mozPointerLockElement === canvas ||
         document.webkitPointerLockElement === canvas) {
         
-        console.log('Pointer lock active');
+        console.log('Fare kilidi aktif');
         isPointerLocked = true;
         
-        // Enable mouse movement for camera control
+        // Kamera kontrolü için fare hareketini etkinleştir
         document.addEventListener('mousemove', onMouseMove, false);
         
-        // If game was paused, resume it
+        // Eğer oyun duraklatılmışsa, devam ettir
         if (game && game.isPaused) {
             try {
                 game.resume();
-                console.log('Game resumed successfully');
+                console.log('Oyun başarıyla devam ediyor');
             } catch (error) {
-                console.error('Error resuming game:', error);
-                // Try to refresh the game if resume fails
+                console.error('Oyun devam ederken hata:', error);
+                // Devam etme başarısız olursa oyunu yenile
                 location.reload();
             }
         }
         
-        // Remove pause overlay if it exists
+        // Duraklama ekranını kaldır (varsa)
         const pauseOverlay = document.getElementById('pause-overlay');
         if (pauseOverlay) {
             pauseOverlay.remove();
         }
     } else {
-        console.log('Pointer lock inactive');
+        console.log('Fare kilidi devre dışı');
         isPointerLocked = false;
         
-        // Disable mouse movement for camera control
+        // Kamera kontrolü için fare hareketini devre dışı bırak
         document.removeEventListener('mousemove', onMouseMove, false);
         
-        // Pause game
+        // Oyunu duraklat
         if (game && !game.isPaused && game.isRunning) {
             try {
                 game.pause();
-                console.log('Game paused successfully');
+                console.log('Oyun başarıyla duraklatıldı');
             } catch (error) {
-                console.error('Error pausing game:', error);
+                console.error('Oyun duraklatılırken hata:', error);
             }
             showPausedOverlay();
         }
     }
 }
 
-// Handle pointer lock errors
+// Fare kilidi hatalarını işle
 function pointerLockError() {
-    console.error('Pointer lock error');
+    console.error('Fare kilidi hatası');
 }
 
-// Handle mouse movement
+// Fare hareketini işle
 function onMouseMove(event) {
     if (isPointerLocked && game && game.player) {
         game.player.handleMouseMove(event);
     }
 }
 
-// Setup keyboard controls
+// Klavye kontrollerini ayarla
 function setupKeyboardControls() {
     document.addEventListener('keydown', (event) => {
         if (!game || !game.player) return;

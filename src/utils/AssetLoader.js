@@ -6,32 +6,32 @@ export class AssetLoader {
     constructor(loadingManager) {
         this.loadingManager = loadingManager || new THREE.LoadingManager();
         
-        // Initialize loaders
+        // Yükleyicileri başlat
         this.textureLoader = new TextureLoader(this.loadingManager);
         this.gltfLoader = new GLTFLoader(this.loadingManager);
         this.audioLoader = new THREE.AudioLoader(this.loadingManager);
         
-        // Asset storage
+        // Varlık depolama
         this.textures = {};
         this.models = {};
         this.sounds = {};
         
-        // Flag to track initialization
+        // Başlatma durumunu izleyen bayrak
         this.initialized = false;
         
-        // Create default textures immediately
+        // Varsayılan dokuları hemen oluştur
         this.createDefaultTextures();
         
-        // Create default models immediately
+        // Varsayılan modelleri hemen oluştur
         this.createDefaultModels();
         
-        console.log("AssetLoader initialized");
+        console.log("AssetLoader başlatıldı");
         this.initialized = true;
     }
     
     createDefaultTextures() {
-        console.log("Creating default textures");
-        // Create a small canvas for each texture type
+        console.log("Varsayılan dokular oluşturuluyor");
+        // Her doku türü için küçük bir tuval oluştur
         const createCanvas = (color) => {
             const canvas = document.createElement('canvas');
             canvas.width = 16;
@@ -42,7 +42,7 @@ export class AssetLoader {
             return canvas;
         };
         
-        // Create default textures with different colors
+        // Farklı renklerle varsayılan dokular oluştur
         const defaultTextureColors = {
             fire: '#ff5500',
             smoke: '#777777',
@@ -63,7 +63,7 @@ export class AssetLoader {
             ammoIcon: '#ffff00'
         };
         
-        // Convert canvases to textures
+        // Tuvallerden dokular oluştur
         for (const [name, color] of Object.entries(defaultTextureColors)) {
             const canvas = createCanvas(color);
             const texture = new THREE.CanvasTexture(canvas);
@@ -72,29 +72,29 @@ export class AssetLoader {
     }
     
     createDefaultModels() {
-        console.log("Creating default models as fallbacks...");
+        console.log("Yedek olarak varsayılan modeller oluşturuluyor...");
         
-        // Create default weapon models
+        // Varsayılan silah modellerini oluştur
         this.createDefaultWeaponModels();
         
-        // Create default enemy models
+        // Varsayılan düşman modellerini oluştur
         this.createDefaultEnemyModels();
         
-        // Create default prop models
+        // Varsayılan prop modellerini oluştur
         this.createDefaultPropModels();
     }
     
     createDefaultWeaponModels() {
-        // Create a simple pistol model
+        // Basit bir tabanca modeli oluştur
         const pistolGroup = new THREE.Group();
         
-        // Pistol body
+        // Tabanca gövdesi
         const pistolBody = new THREE.Mesh(
             new THREE.BoxGeometry(0.2, 0.15, 0.35),
             new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.4, metalness: 0.8 })
         );
         
-        // Pistol barrel
+        // Tabanca namlusu
         const pistolBarrel = new THREE.Mesh(
             new THREE.CylinderGeometry(0.03, 0.03, 0.25, 8),
             new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.3, metalness: 0.9 })
@@ -103,28 +103,28 @@ export class AssetLoader {
         pistolBarrel.position.z = -0.2;
         pistolBarrel.position.y = 0.03;
         
-        // Pistol handle
+        // Tabanca kabzası
         const pistolHandle = new THREE.Mesh(
             new THREE.BoxGeometry(0.1, 0.2, 0.15),
             new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.8, metalness: 0.2 })
         );
         pistolHandle.position.y = -0.15;
         
-        // Add parts to pistol
+        // Parçaları tabancaya ekle
         pistolGroup.add(pistolBody);
         pistolGroup.add(pistolBarrel);
         pistolGroup.add(pistolHandle);
         
-        // Create a simple rifle model
+        // Basit bir tüfek modeli oluştur
         const rifleGroup = new THREE.Group();
         
-        // Rifle body
+        // Tüfek gövdesi
         const rifleBody = new THREE.Mesh(
             new THREE.BoxGeometry(0.15, 0.15, 0.8),
             new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.4, metalness: 0.8 })
         );
         
-        // Rifle barrel
+        // Tüfek namlusu
         const rifleBarrel = new THREE.Mesh(
             new THREE.CylinderGeometry(0.03, 0.03, 0.4, 8),
             new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.3, metalness: 0.9 })
@@ -133,7 +133,7 @@ export class AssetLoader {
         rifleBarrel.position.z = -0.5;
         rifleBarrel.position.y = 0.03;
         
-        // Rifle handle
+        // Tüfek kabzası
         const rifleHandle = new THREE.Mesh(
             new THREE.BoxGeometry(0.1, 0.2, 0.15),
             new THREE.MeshStandardMaterial({ color: 0x444444, roughness: 0.8, metalness: 0.2 })
@@ -141,29 +141,29 @@ export class AssetLoader {
         rifleHandle.position.y = -0.15;
         rifleHandle.position.z = 0.1;
         
-        // Rifle stock
+        // Tüfek dipçiği
         const rifleStock = new THREE.Mesh(
             new THREE.BoxGeometry(0.1, 0.15, 0.3),
             new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.8, metalness: 0.1 })
         );
         rifleStock.position.z = 0.4;
         
-        // Add parts to rifle
+        // Parçaları tüfeğe ekle
         rifleGroup.add(rifleBody);
         rifleGroup.add(rifleBarrel);
         rifleGroup.add(rifleHandle);
         rifleGroup.add(rifleStock);
         
-        // Create a simple shotgun model
+        // Basit bir pompalı tüfek modeli oluştur
         const shotgunGroup = new THREE.Group();
         
-        // Shotgun body
+        // Pompalı tüfek gövdesi
         const shotgunBody = new THREE.Mesh(
             new THREE.BoxGeometry(0.2, 0.2, 0.7),
             new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.4, metalness: 0.8 })
         );
         
-        // Shotgun barrel
+        // Pompalı tüfek namlusu
         const shotgunBarrel = new THREE.Mesh(
             new THREE.CylinderGeometry(0.05, 0.05, 0.5, 8),
             new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.3, metalness: 0.9 })
@@ -172,27 +172,27 @@ export class AssetLoader {
         shotgunBarrel.position.z = -0.4;
         shotgunBarrel.position.y = 0.03;
         
-        // Shotgun handle
+        // Pompalı tüfek kabzası
         const shotgunHandle = new THREE.Mesh(
             new THREE.BoxGeometry(0.1, 0.25, 0.15),
             new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.8, metalness: 0.1 })
         );
         shotgunHandle.position.y = -0.2;
         
-        // Shotgun stock
+        // Pompalı tüfek dipçiği
         const shotgunStock = new THREE.Mesh(
             new THREE.BoxGeometry(0.15, 0.18, 0.3),
             new THREE.MeshStandardMaterial({ color: 0x8B4513, roughness: 0.8, metalness: 0.1 })
         );
         shotgunStock.position.z = 0.4;
         
-        // Add parts to shotgun
+        // Parçaları pompalı tüfeğe ekle
         shotgunGroup.add(shotgunBody);
         shotgunGroup.add(shotgunBarrel);
         shotgunGroup.add(shotgunHandle);
         shotgunGroup.add(shotgunStock);
         
-        // Store the weapon models
+        // Silah modellerini depola
         this.models.pistol = { scene: pistolGroup };
         this.models.rifle = { scene: rifleGroup };
         this.models.shotgun = { scene: shotgunGroup };
