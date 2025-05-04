@@ -27,5 +27,5 @@ npm install
 # Sunucuyu başlatın
 npm run dev
 
-# Üretim sürümünü oluşturun
+# Build sürümünü oluşturun
 npm run build
