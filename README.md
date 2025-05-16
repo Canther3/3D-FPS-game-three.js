@@ -1,4 +1,4 @@
-# 🔫 Modern 3D FPS Oyun Motoru (Three.js)
+# 🔫 Modern 3D FPS Oyun Motoru (Three.js) /  Cursor (claude 3.7 sonnet)
 
 Bu proje, **Three.js** kullanılarak geliştirilen modern bir birinci şahıs nişancı (FPS) oyun motorudur. Web tarayıcısında çalışan yüksek performanslı 3D FPS deneyimi sunar.
 
